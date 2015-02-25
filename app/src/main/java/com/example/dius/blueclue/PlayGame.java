@@ -25,8 +25,30 @@ public class PlayGame extends ActionBarActivity {
     TextView statusText;
     BluetoothAdapter bluetoothAdapter;
     Spinner devicesSpinner;
-    ArrayAdapter<String> dataAdapter;
-    List<String> list = new ArrayList<String>();
+    ArrayAdapter<DeviceWrapper> dataAdapter;
+    List<DeviceWrapper> list = new ArrayList<>();
+
+    class DeviceWrapper {
+
+        private BluetoothDevice device;
+
+        public DeviceWrapper(BluetoothDevice device) {
+            this.device = device;
+        }
+
+        @Override
+        public String toString() {
+            String label = device.getName();
+            if(label == null || label.trim().length() == 0) {
+                label = "Untitled";
+            }
+            return label + " (" + device.getAddress() + ")";
+        }
+
+        public BluetoothDevice getDevice() {
+            return device;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +60,13 @@ public class PlayGame extends ActionBarActivity {
         statusText = (TextView)findViewById(R.id.statusText);
         devicesSpinner = (Spinner)findViewById(R.id.devices);
 
-        list.add("-Choose device-");
+        //list.add("-Choose device-");
 
-        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        dataAdapter = new ArrayAdapter<DeviceWrapper>(this, android.R.layout.simple_spinner_item, list);
 
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         devicesSpinner.setAdapter(dataAdapter);
+
 
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         this.registerReceiver(mReceiver, filter);
@@ -89,7 +112,7 @@ public class PlayGame extends ActionBarActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 statusText.setText("device found: " + device.getName() + "(" + device.getAddress() + ")");
-                list.add(device.getName() + "(" + device.getAddress() + ")");
+                list.add(new DeviceWrapper(device));
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 setProgressBarIndeterminateVisibility(false);
             }
