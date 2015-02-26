@@ -165,6 +165,25 @@ public class GameplayActivity extends ActionBarActivity {
 
             operand1.setText("");
             operand2.setText("");
+
+            operand1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if(hasFocus){
+                        operand1.setText("");
+                    }
+                }
+            });
+
+            operand2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if(hasFocus){
+                        operand2.setText("");
+                    }
+                }
+            });
+
             operand1.setOnKeyListener(new NextInputKeyUpListener(operand2));
             operand2.setOnKeyListener(new SendNumbersKeyUpListener(operand1, operator) {
                 @Override
