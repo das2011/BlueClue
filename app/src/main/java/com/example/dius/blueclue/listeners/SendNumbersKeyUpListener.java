@@ -18,7 +18,9 @@ public abstract class SendNumbersKeyUpListener implements View.OnKeyListener {
 
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
-        return true;
+        System.out.println("got this key: " + keyCode);
+        action();
+        return false;
     }
 
     public abstract void action();

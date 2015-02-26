@@ -76,6 +76,11 @@ public class GameplayActivity extends ActionBarActivity {
                         // construct a string from the valid bytes in the buffer
                         String readMessage = new String(readBuf, 0, msg.arg1);
                         System.out.println("got msg: " + readMessage);
+
+                        String[] splits = readMessage.split(";");
+                        fragment.operand1.setText(splits[0]);
+                        fragment.operand2.setText(splits[2]);
+
                         break;
                     case Constants.MESSAGE_DEVICE_NAME:
                         // save the connected device's name
@@ -158,11 +163,19 @@ public class GameplayActivity extends ActionBarActivity {
             digit1 = (EditText)rootView.findViewById(R.id.digit1);
             digit2 = (EditText)rootView.findViewById(R.id.digit2);
 
+            operand1.setText("");
+            operand2.setText("");
             operand1.setOnKeyListener(new NextInputKeyUpListener(operand2));
             operand2.setOnKeyListener(new SendNumbersKeyUpListener(operand1, operator) {
                 @Override
                 public void action() {
-                    // Send {this + operand + previous}
+                    System.out.println(" -- " + operand1.getText() + "--- "  + operator.getText() + " -- " + operand2.getText());
+                    if(operand1.getText().length() > 0 && operator.getText().length() > 0 && operand2.length() > 0){
+
+                        String equation = operand1.getText() + ";" + operator.getText() + ";" + operand2.getText();
+                        System.out.println("equation was: " + equation);
+                        BluetoothChatService.getInstance().write(equation.getBytes());
+                    }
                 }
             });
 
