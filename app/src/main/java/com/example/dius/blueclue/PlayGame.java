@@ -174,8 +174,8 @@ public class PlayGame extends ActionBarActivity {
 
         };
 
-        bluetoothService = new BluetoothChatService(getApplicationContext(), bluetoothEventHandler);
-        bluetoothService.start();
+        bluetoothService = BluetoothChatService.getInstance();
+        bluetoothService.addHandler(bluetoothEventHandler);
 
         Button playButton = (Button)findViewById(R.id.playButton);
 

@@ -95,8 +95,8 @@ public class GameplayActivity extends ActionBarActivity {
 
         };
 
-        bluetoothService = new BluetoothChatService(getApplicationContext(), bluetoothMessageHandler);
-        bluetoothService.start();
+        bluetoothService = BluetoothChatService.getInstance();
+        bluetoothService.addHandler(bluetoothMessageHandler);
 
     }
 
