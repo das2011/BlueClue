@@ -34,7 +34,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="FIND"
+            android:text="Find Games"
             android:id="@+id/findGamesButton" />
     </LinearLayout>
 </RelativeLayout>

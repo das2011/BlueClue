@@ -27,6 +27,8 @@ public class PlayGame extends ActionBarActivity {
     Spinner devicesSpinner;
     ArrayAdapter<DeviceWrapper> dataAdapter;
     List<DeviceWrapper> list = new ArrayList<>();
+    boolean finding = false;
+    Button findGamesButton;
 
     class DeviceWrapper {
 
@@ -55,7 +57,7 @@ public class PlayGame extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_game);
 
-        Button findGamesButton = (Button)findViewById(R.id.findGamesButton);
+        findGamesButton = (Button)findViewById(R.id.findGamesButton);
 
         statusText = (TextView)findViewById(R.id.statusText);
         devicesSpinner = (Spinner)findViewById(R.id.devices);
@@ -76,10 +78,22 @@ public class PlayGame extends ActionBarActivity {
         findGamesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            if(finding){
+                bluetoothAdapter.cancelDiscovery();
+                findGamesButton.setText("Find");
+                statusText.setText("Click button to search");
+                finding = false;
+            }else {
                 System.out.println("Got a click on the FIND GAMES button!");
                 bluetoothAdapter.startDiscovery();
+                findGamesButton.setText("Stop!");
+                statusText.setText("Scanning...");
+                finding = true;
+            }
+
             }
         });
+
     }
 
     @Override
