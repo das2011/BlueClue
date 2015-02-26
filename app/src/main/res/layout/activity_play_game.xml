@@ -42,5 +42,11 @@
             android:layout_height="wrap_content"
             android:text="PLAY!"
             android:id="@+id/playButton" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Make Me Findable!"
+            android:id="@+id/findableButton" />
     </LinearLayout>
 </RelativeLayout>
