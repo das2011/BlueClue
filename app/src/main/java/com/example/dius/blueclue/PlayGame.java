@@ -6,6 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,9 @@ public class PlayGame extends ActionBarActivity {
     List<DeviceWrapper> list = new ArrayList<>();
     boolean finding = false;
     Button findGamesButton;
+    BluetoothChatService bluetoothService;
+    Handler bluetoothEventHandler;
+    String connectedDeviceName;
 
     class DeviceWrapper {
 
@@ -100,17 +107,71 @@ public class PlayGame extends ActionBarActivity {
             }
         });
 
+        bluetoothEventHandler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                System.out.println("msg: " + msg);
+                msg.getData();
+                super.handleMessage(msg);
+
+                switch (msg.what) {
+                    case Constants.MESSAGE_STATE_CHANGE:
+                        switch (msg.arg1) {
+                            case BluetoothChatService.STATE_CONNECTED:
+                                statusText.setText("connected! ");
+                                break;
+                            case BluetoothChatService.STATE_CONNECTING:
+                                statusText.setText("connecting.... ");
+                                break;
+                            case BluetoothChatService.STATE_LISTEN:
+                            case BluetoothChatService.STATE_NONE:
+                                statusText.setText("NOT connected :(");
+                                break;
+                        }
+                        break;
+                    case Constants.MESSAGE_WRITE:
+                        byte[] writeBuf = (byte[]) msg.obj;
+                        // construct a string from the buffer
+                        String writeMessage = new String(writeBuf);
+                        break;
+                    case Constants.MESSAGE_READ:
+                        byte[] readBuf = (byte[]) msg.obj;
+                        // construct a string from the valid bytes in the buffer
+                        String readMessage = new String(readBuf, 0, msg.arg1);
+                        System.out.println("got msg: " + readMessage);
+                        break;
+                    case Constants.MESSAGE_DEVICE_NAME:
+                        // save the connected device's name
+                        connectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
+                        Toast.makeText(PlayGame.this, "Connected to "
+                                + connectedDeviceName, Toast.LENGTH_SHORT).show();
+                        break;
+                    case Constants.MESSAGE_TOAST:
+                        Toast.makeText(PlayGame.this, msg.getData().getString(Constants.TOAST),
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                }
+
+            }
+
+        };
+
+        bluetoothService = new BluetoothChatService(getApplicationContext(), bluetoothEventHandler);
+
         Button playButton = (Button)findViewById(R.id.playButton);
 
         playButton.setOnClickListener(new View.OnClickListener() {
+            public static final boolean NOT_SECURE = false;
+
             @Override
             public void onClick(View v) {
                 System.out.println("hello! I just got the click event: " + v);
                 Object device = devicesSpinner.getSelectedItem();
                 System.out.println("was object: " + device);
-                DeviceWrapper deviceW = (DeviceWrapper)devicesSpinner.getSelectedItem();
+                DeviceWrapper deviceW = (DeviceWrapper) devicesSpinner.getSelectedItem();
                 System.out.println("--> " + deviceW.getDevice().getName());
                 System.out.println("--> " + deviceW.getDevice().getAddress());
+                bluetoothService.connect(deviceW.getDevice(), NOT_SECURE);
             }
         });
 
