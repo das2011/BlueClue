@@ -34,6 +34,7 @@ public class PlayGame extends ActionBarActivity {
     List<DeviceWrapper> list = new ArrayList<>();
     boolean finding = false;
     Button findGamesButton;
+    Button findableButton;
     BluetoothChatService bluetoothService;
     Handler bluetoothEventHandler;
     String connectedDeviceName;
@@ -83,6 +84,21 @@ public class PlayGame extends ActionBarActivity {
         setContentView(R.layout.activity_play_game);
 
         findGamesButton = (Button)findViewById(R.id.findGamesButton);
+        findableButton = (Button)findViewById(R.id.findableButton);
+
+        findableButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("-----> " + v);
+                findableButton.setText("FINDABLE!");
+                System.out.println("is bluetooth enabled: " + bluetoothAdapter.isEnabled());
+
+                Intent discoverableIntent = new
+                Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+                startActivity(discoverableIntent);
+            }
+        });
 
         statusText = (TextView)findViewById(R.id.statusText);
         devicesSpinner = (Spinner)findViewById(R.id.devices);
@@ -119,6 +135,8 @@ public class PlayGame extends ActionBarActivity {
                         switch (msg.arg1) {
                             case BluetoothChatService.STATE_CONNECTED:
                                 statusText.setText("connected! ");
+                                Intent playGameIntent = new Intent(PlayGame.this, GameplayActivity.class);
+                                startActivity(playGameIntent);
                                 break;
                             case BluetoothChatService.STATE_CONNECTING:
                                 statusText.setText("connecting.... ");
@@ -157,6 +175,7 @@ public class PlayGame extends ActionBarActivity {
         };
 
         bluetoothService = new BluetoothChatService(getApplicationContext(), bluetoothEventHandler);
+        bluetoothService.start();
 
         Button playButton = (Button)findViewById(R.id.playButton);
 
@@ -168,10 +187,13 @@ public class PlayGame extends ActionBarActivity {
                 System.out.println("hello! I just got the click event: " + v);
                 Object device = devicesSpinner.getSelectedItem();
                 System.out.println("was object: " + device);
-                DeviceWrapper deviceW = (DeviceWrapper) devicesSpinner.getSelectedItem();
-                System.out.println("--> " + deviceW.getDevice().getName());
-                System.out.println("--> " + deviceW.getDevice().getAddress());
-                bluetoothService.connect(deviceW.getDevice(), NOT_SECURE);
+                DeviceWrapper deviceWrapper = (DeviceWrapper) devicesSpinner.getSelectedItem();
+                System.out.println("--> " + deviceWrapper.getDevice().getName());
+                System.out.println("--> " + deviceWrapper.getDevice().getAddress());
+                bluetoothService.connect(deviceWrapper.getDevice(), NOT_SECURE);
+                Intent playGameIntent = new Intent(PlayGame.this, GameplayActivity.class);
+                playGameIntent.putExtra("com.example.blueclue.competitor", deviceWrapper.getDevice());
+                startActivity(playGameIntent);
             }
         });
 
