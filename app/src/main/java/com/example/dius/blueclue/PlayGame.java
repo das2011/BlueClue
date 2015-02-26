@@ -6,21 +6,27 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class PlayGame extends ActionBarActivity {
 
     TextView statusText;
     BluetoothAdapter bluetoothAdapter;
+    Spinner devicesSpinner;
+    ArrayAdapter<String> dataAdapter;
+    List<String> list = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +36,14 @@ public class PlayGame extends ActionBarActivity {
         Button findGamesButton = (Button)findViewById(R.id.findGamesButton);
 
         statusText = (TextView)findViewById(R.id.statusText);
+        devicesSpinner = (Spinner)findViewById(R.id.devices);
+
+        list.add("-Choose device-");
+
+        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        devicesSpinner.setAdapter(dataAdapter);
 
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         this.registerReceiver(mReceiver, filter);
@@ -75,7 +89,7 @@ public class PlayGame extends ActionBarActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 statusText.setText("device found: " + device.getName() + "(" + device.getAddress() + ")");
-
+                list.add(device.getName() + "(" + device.getAddress() + ")");
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 setProgressBarIndeterminateVisibility(false);
             }
