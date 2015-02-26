@@ -23,11 +23,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Initializing...."
+            android:text="Click on the Find Games button"
             android:id="@+id/statusText" />
 
         <Spinner
-            android:layout_width="match_parent"
+            android:layout_width="252dp"
             android:layout_height="wrap_content"
             android:id="@+id/devices" />
 
@@ -36,5 +36,11 @@
             android:layout_height="wrap_content"
             android:text="Find Games"
             android:id="@+id/findGamesButton" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PLAY!"
+            android:id="@+id/playButton" />
     </LinearLayout>
 </RelativeLayout>

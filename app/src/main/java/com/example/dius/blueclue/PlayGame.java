@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -50,6 +51,23 @@ public class PlayGame extends ActionBarActivity {
         public BluetoothDevice getDevice() {
             return device;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            DeviceWrapper that = (DeviceWrapper) o;
+
+            if (!device.equals(that.device)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return device.hashCode();
+        }
     }
 
     @Override
@@ -62,13 +80,39 @@ public class PlayGame extends ActionBarActivity {
         statusText = (TextView)findViewById(R.id.statusText);
         devicesSpinner = (Spinner)findViewById(R.id.devices);
 
-        //list.add("-Choose device-");
+        findGamesButton = (Button)findViewById(R.id.findGamesButton);
 
         dataAdapter = new ArrayAdapter<DeviceWrapper>(this, android.R.layout.simple_spinner_item, list);
 
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         devicesSpinner.setAdapter(dataAdapter);
+        devicesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("Item selected!: " + position);
+                DeviceWrapper device = dataAdapter.getItem(position);
+                System.out.println("selected item: " + device.getDevice().getName());
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                System.out.println("nothing!!!! TRA LA LA!");
+            }
+        });
+
+        Button playButton = (Button)findViewById(R.id.playButton);
+
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("hello! I just got the click event: " + v);
+                Object device = devicesSpinner.getSelectedItem();
+                System.out.println("was object: " + device);
+                DeviceWrapper deviceW = (DeviceWrapper)devicesSpinner.getSelectedItem();
+                System.out.println("--> " + deviceW.getDevice().getName());
+                System.out.println("--> " + deviceW.getDevice().getAddress());
+            }
+        });
 
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         this.registerReceiver(mReceiver, filter);
@@ -81,7 +125,7 @@ public class PlayGame extends ActionBarActivity {
             if(finding){
                 bluetoothAdapter.cancelDiscovery();
                 findGamesButton.setText("Find");
-                statusText.setText("Click button to search");
+                statusText.setText("Click on the Find button");
                 finding = false;
             }else {
                 System.out.println("Got a click on the FIND GAMES button!");
@@ -124,7 +168,8 @@ public class PlayGame extends ActionBarActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 statusText.setText("device found: " + device.getName() + "(" + device.getAddress() + ")");
-                list.add(new DeviceWrapper(device));
+                System.out.println("device found: " + device.getName() + "(" + device.getAddress() + ")");
+                dataAdapter.add(new DeviceWrapper(device));
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 setProgressBarIndeterminateVisibility(false);
             }
