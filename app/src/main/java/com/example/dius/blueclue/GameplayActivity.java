@@ -19,8 +19,6 @@ import android.widget.Toast;
 import com.example.dius.blueclue.listeners.NextInputKeyUpListener;
 import com.example.dius.blueclue.listeners.SendNumbersKeyUpListener;
 
-import org.androidannotations.annotations.ViewById;
-
 
 public class GameplayActivity extends ActionBarActivity {
 
@@ -78,6 +76,11 @@ public class GameplayActivity extends ActionBarActivity {
                         // construct a string from the valid bytes in the buffer
                         String readMessage = new String(readBuf, 0, msg.arg1);
                         System.out.println("got msg: " + readMessage);
+
+                        String[] splits = readMessage.split(";");
+                        fragment.operand1.setText(splits[0]);
+                        fragment.operand2.setText(splits[2]);
+
                         break;
                     case Constants.MESSAGE_DEVICE_NAME:
                         // save the connected device's name
@@ -95,8 +98,8 @@ public class GameplayActivity extends ActionBarActivity {
 
         };
 
-        bluetoothService = new BluetoothChatService(getApplicationContext(), bluetoothMessageHandler);
-        bluetoothService.start();
+        bluetoothService = BluetoothChatService.getInstance();
+        bluetoothService.addHandler(bluetoothMessageHandler);
 
     }
 
@@ -138,12 +141,12 @@ public class GameplayActivity extends ActionBarActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
-        @ViewById EditText operand1;
-        @ViewById EditText operand2;
-        @ViewById TextView operator;
+        EditText operand1;
+        EditText operand2;
+        TextView operator;
 
-        @ViewById EditText digit1;
-        @ViewById EditText digit2;
+        EditText digit1;
+        EditText digit2;
 
         public PlaceholderFragment() {
         }
@@ -153,11 +156,45 @@ public class GameplayActivity extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_gameplay, container, false);
 
+            operand1 = (EditText)rootView.findViewById(R.id.operand1);
+            operand2 = (EditText)rootView.findViewById(R.id.operand2);
+            operator = (TextView)rootView.findViewById(R.id.operator);
+
+            digit1 = (EditText)rootView.findViewById(R.id.digit1);
+            digit2 = (EditText)rootView.findViewById(R.id.digit2);
+
+            operand1.setText("");
+            operand2.setText("");
+
+            operand1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if(hasFocus){
+                        operand1.setText("");
+                    }
+                }
+            });
+
+            operand2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if(hasFocus){
+                        operand2.setText("");
+                    }
+                }
+            });
+
             operand1.setOnKeyListener(new NextInputKeyUpListener(operand2));
             operand2.setOnKeyListener(new SendNumbersKeyUpListener(operand1, operator) {
                 @Override
                 public void action() {
-                    // Send {this + operand + previous}
+                    System.out.println(" -- " + operand1.getText() + "--- "  + operator.getText() + " -- " + operand2.getText());
+                    if(operand1.getText().length() > 0 && operator.getText().length() > 0 && operand2.length() > 0){
+
+                        String equation = operand1.getText() + ";" + operator.getText() + ";" + operand2.getText();
+                        System.out.println("equation was: " + equation);
+                        BluetoothChatService.getInstance().write(equation.getBytes());
+                    }
                 }
             });
 
