@@ -78,10 +78,8 @@ public class PlayGame extends ActionBarActivity {
             public void onClick(View v) {
                 System.out.println("Got a click on the FIND GAMES button!");
                 bluetoothAdapter.startDiscovery();
-
             }
         });
-
     }
 
     @Override
