@@ -88,6 +88,7 @@
                 android:text="#"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/digit1"
+                android:inputType="numberDecimal"
                 />
             <EditText
                 android:layout_width="wrap_content"
@@ -95,6 +96,7 @@
                 android:text="#"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/digit2"
+                android:inputType="numberDecimal"
                 />
         </LinearLayout>
 

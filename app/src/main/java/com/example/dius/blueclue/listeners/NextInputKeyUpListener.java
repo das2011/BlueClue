@@ -10,7 +10,7 @@ public class NextInputKeyUpListener implements View.OnKeyListener {
     private View next;
 
     public NextInputKeyUpListener(View next) {
-        System.out.println("New Listerner for NEXT!");
+        System.out.println("New Listener for NEXT!");
         this.next = next;
     }
 
