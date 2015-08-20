@@ -193,6 +193,7 @@ public class PlayGame extends ActionBarActivity {
                 bluetoothService.connect(deviceWrapper.getDevice(), NOT_SECURE);
                 Intent playGameIntent = new Intent(PlayGame.this, GameplayActivity.class);
                 playGameIntent.putExtra("com.example.blueclue.competitor", deviceWrapper.getDevice());
+                playGameIntent.putExtra("isMaster", true);
                 startActivity(playGameIntent);
             }
         });

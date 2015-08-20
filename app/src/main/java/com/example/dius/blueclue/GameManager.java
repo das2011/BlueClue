@@ -33,7 +33,8 @@ public class GameManager {
     }
 
     private void resetGame() {
-        mode = GameMode.TWITCH;
+        //mode = GameMode.TWITCH;
+        mode = GameMode.CHALLENGE;
         score = new Score();
         resetRound();
     }
@@ -129,4 +130,15 @@ public class GameManager {
         return score.getTheirScore();
     }
 
+    public boolean isWaitingForAnswer(){
+        return currentPhase == GamePhase.WAIT_FOR_ANSWER;
+    }
+
+    public boolean isWaitingForQuestion(){
+        return currentPhase == GamePhase.WAIT_FOR_QUESTION;
+    }
+
+    public boolean isNotStarted(){
+        return answer == null && question == null;
+    }
 }

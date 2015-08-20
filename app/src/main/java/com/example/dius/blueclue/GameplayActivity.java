@@ -32,6 +32,9 @@ public class GameplayActivity extends ActionBarActivity {
     BluetoothChatService bluetoothService;
     String equationString = "";
 
+    private static GameManager myGame;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +47,8 @@ public class GameplayActivity extends ActionBarActivity {
                 .add(R.id.container, fragment)
                 .commit();
         }
+
+        myGame = GameManager.getInstance();
 
         bluetoothMessageHandler = new android.os.Handler(){
             @Override
@@ -80,14 +85,35 @@ public class GameplayActivity extends ActionBarActivity {
                         String readMessage = new String(readBuf, 0, msg.arg1);
                         System.out.println("got msg: " + readMessage);
 
+//                        if(equationString.equals("") && !myGame.isWaitingForAnswer()){
+//                            myGame.startGameAsAnswerer();
+//                        }
+//
                         if(!readMessage.equals(equationString)){
-                            String[] splits = readMessage.split(";");
-                            fragment.operand1.setText(splits[0]);
-                            fragment.operand2.setText(splits[2]);
 
-                            fragment.digit1.setText("");
-                            fragment.digit2.setText("");
-                            fragment.digit1.requestFocus();
+                            if(readMessage.contains("---") && myGame.isWaitingForAnswer()) {
+                                System.out.println(" we just got an answer!!!");
+                                Answer answer = new Answer();
+                                String answerString = readMessage.substring(3, readMessage.length());
+                                answer.setValue(Integer.parseInt(answerString));
+                                myGame.answerReceived(answer);
+                            }else if(myGame.isNotStarted() || readMessage.contains(";") && myGame.isWaitingForQuestion()){
+                                if(myGame.isNotStarted()){
+                                    myGame.startGameAsAnswerer();
+                                }
+                                String[] splits = readMessage.split(";");
+                                fragment.operand1.setText(splits[0]);
+                                fragment.operand2.setText(splits[2]);
+                                Question receivedQuestion = new Question();
+                                receivedQuestion.setOperand1(Integer.parseInt(splits[0]));
+                                receivedQuestion.setOperand2(Integer.parseInt(splits[2]));
+                                receivedQuestion.setOperator(Question.Operator.PLUS);
+                                myGame.questionReceived(receivedQuestion);
+
+                                fragment.digit1.setText("");
+                                fragment.digit2.setText("");
+                                fragment.digit1.requestFocus();
+                            }
 
                             equationString = readMessage;
                         }
@@ -123,7 +149,7 @@ public class GameplayActivity extends ActionBarActivity {
 
     @Override
     protected void onResume() {
-        super.onStart();
+        super.onResume();
         Parcelable p = getIntent().getParcelableExtra("com.example.blueclue.competitor");
         System.out.println("HELLO! : " + p);
         if(p != null){
@@ -155,6 +181,8 @@ public class GameplayActivity extends ActionBarActivity {
         EditText operand1;
         EditText operand2;
         TextView operator;
+        TextView myScore;
+        TextView theirScore;
 
         EditText digit1;
         EditText digit2;
@@ -170,6 +198,8 @@ public class GameplayActivity extends ActionBarActivity {
             operand1 = (EditText)rootView.findViewById(R.id.operand1);
             operand2 = (EditText)rootView.findViewById(R.id.operand2);
             operator = (TextView)rootView.findViewById(R.id.operator);
+            myScore = (TextView)rootView.findViewById(R.id.myScore);
+            theirScore = (TextView)rootView.findViewById(R.id.theirScore);
 
             operand1.setTextSize(20);
             operand2.setTextSize(20);
@@ -180,27 +210,6 @@ public class GameplayActivity extends ActionBarActivity {
             operand1.setText("");
             operand2.setText("");
 
-//            operand1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//                @Override
-//                public void onFocusChange(View v, boolean hasFocus) {
-//                    System.out.println("---- operand1 on focus change: " + v + " ---" + hasFocus);
-//                    if (hasFocus) {
-//                        operand1.setText("");
-//                    }
-//                }
-//            });
-//
-//            operand2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//                @Override
-//                public void onFocusChange(View v, boolean hasFocus) {
-//                    System.out.println("---- operand22222222 on focus change: " + v + " ---" + hasFocus);
-//                    if (hasFocus) {
-//                        operand2.setText("");
-//                    }
-//                }
-//            });
-
-            //operand1.setOnKeyListener(new NextInputKeyUpListener(operand2));
             operand1.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -218,19 +227,6 @@ public class GameplayActivity extends ActionBarActivity {
                 }
             });
 
-//            operand2.setOnKeyListener(new SendNumbersKeyUpListener(operand1, operator) {
-//                @Override
-//                public void action() {
-//                    System.out.println(" -- " + operand1.getText() + "--- " + operator.getText() + " -- " + operand2.getText());
-//                    if (operand1.getText().length() > 0 && operator.getText().length() > 0 && operand2.length() > 0) {
-//
-//                        String equation = operand1.getText() + ";" + operator.getText() + ";" + operand2.getText();
-//                        System.out.println("equation was: " + equation);
-//                        BluetoothChatService.getInstance().write(equation.getBytes());
-//                    }
-//                }
-//            });
-//
             operand2.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -244,7 +240,14 @@ public class GameplayActivity extends ActionBarActivity {
 
                             String equation = operand1.getText() + ";" + operator.getText() + ";" + operand2.getText();
                             System.out.println("equation was: " + equation);
+                            Question question = new Question();
+                            question.setOperand1(Integer.valueOf(operand1.getText().toString()).intValue());
+                            question.setOperand2(Integer.valueOf(operand2.getText().toString()).intValue());
+                            question.setOperator(Question.Operator.PLUS);
+                            myGame.startGameAsQuestioner();
+                            myGame.sendQuestion(question);
                             BluetoothChatService.getInstance().write(equation.getBytes());
+                            myGame.questionSent();
                         }
                     }
                 }
@@ -253,8 +256,6 @@ public class GameplayActivity extends ActionBarActivity {
                 public void afterTextChanged(Editable s) {
                 }
             });
-
-            //digit1.setOnKeyListener(new NextInputKeyUpListener(digit2));
 
             digit1.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -287,15 +288,25 @@ public class GameplayActivity extends ActionBarActivity {
                         if(digit1.getText().length() > 0 && digit2.getText().length() > 0){
                             int answer = Integer.valueOf(digit1.getText().toString() + digit2.getText().toString());
 
-                            if(answer == val1 + val2){
-                                Toast.makeText(getActivity(), "CORRECT!", Toast.LENGTH_SHORT).show();
-                            }else{
-                                Toast.makeText(getActivity(), "LOST A POINT!", Toast.LENGTH_SHORT).show();
-                            }
+                            Answer myAnswer = new Answer();
+                            myAnswer.setValue(answer);
+
+                            myGame.sendAnswer(myAnswer);
+
+                            BluetoothChatService.getInstance().write(("---" + myAnswer.getValue()).getBytes());
+//                            if(answer == val1 + val2){
+//                                Toast.makeText(getActivity(), "CORRECT!", Toast.LENGTH_SHORT).show();
+//                            }else{
+//                                Toast.makeText(getActivity(), "LOST A POINT!", Toast.LENGTH_SHORT).show();
+//                            }
+                            myScore.setText("" + myGame.getMyScore());
+                            theirScore.setText("" + myGame.getTheirScore());
+
                             operand1.setText("");
                             operand2.setText("");
                             digit1.setText("");
                             digit2.setText("");
+                            operand1.requestFocus();
                         }
                     }
                 }
@@ -304,29 +315,6 @@ public class GameplayActivity extends ActionBarActivity {
                 public void afterTextChanged(Editable s) {
                 }
             });
-
-//            digit2.setOnKeyListener(new SendNumbersKeyUpListener(digit1, digit2) {
-//                @Override
-//                public void action() {
-//
-//                    int val1 = Integer.valueOf(operand1.getText().toString());
-//                    int val2 = Integer.valueOf(operand2.getText().toString());
-//
-//                    if(digit1.getText().length() > 0 && digit2.getText().length() > 0){
-//                        int answer = Integer.valueOf(digit1.getText().toString() + digit2.getText().toString());
-//
-//                        if(answer == val1 + val2){
-//                            Toast.makeText(getActivity(), "CORRECT!", Toast.LENGTH_SHORT).show();
-//                        }else{
-//                            Toast.makeText(getActivity(), "LOST A POINT!", Toast.LENGTH_SHORT).show();
-//                        }
-//                        operand1.setText("");
-//                        operand2.setText("");
-//                        digit1.setText("");
-//                        digit2.setText("");
-//                    }
-//                }
-//            });
 
             return rootView;
         }

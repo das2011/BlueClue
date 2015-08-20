@@ -1,0 +1,45 @@
+
+
+I/System.out( 3044): got this key: 66
+I/System.out( 3044):  -- 6--- + -- 4
+I/System.out( 3044): equation was: 6;+;4
+I/System.out( 3044): got this key: 66
+I/System.out( 3044):  -- 6--- + -- 4
+I/System.out( 3044): equation was: 6;+;4
+I/System.out( 3044): got this key: 66
+D/AndroidRuntime( 3044): Shutting down VM
+E/AndroidRuntime( 3044): FATAL EXCEPTION: main
+E/AndroidRuntime( 3044): Process: com.example.dius.blueclue, PID: 3044
+E/AndroidRuntime( 3044): java.lang.NumberFormatException: Invalid int: "##"
+E/AndroidRuntime( 3044): 	at java.lang.Integer.invalidInt(Integer.java:138)
+
+
+
+
+
+W/ProcessCpuTracker(  861): Skipping unknown process pid 13241
+I/System.out(12688): got this key: 66
+I/System.out(12688): got this key: 66
+D/AndroidRuntime(12688): Shutting down VM
+E/AndroidRuntime(12688): FATAL EXCEPTION: main
+E/AndroidRuntime(12688): Process: com.example.dius.blueclue, PID: 12688
+E/AndroidRuntime(12688): java.lang.NumberFormatException: Invalid int: ""
+E/AndroidRuntime(12688): 	at java.lang.Integer.invalidInt(Integer.java:138)
+E/AndroidRuntime(12688): 	at java.lang.Integer.parseInt(Integer.java:358)
+E/AndroidRuntime(12688): 	at java.lang.Integer.parseInt(Integer.java:334)
+E/AndroidRuntime(12688): 	at java.lang.Integer.valueOf(Integer.java:525)
+E/AndroidRuntime(12688): 	at com.example.dius.blueclue.GameplayActivity$PlaceholderFragment$4.action(GameplayActivity.java:214)
+E/AndroidRuntime(12688): 	at com.example.dius.blueclue.listeners.SendNumbersKeyUpListener.onKey(SendNumbersKeyUpListener.java:22)
+E/AndroidRuntime(12688): 	at android.view.View.dispatchKeyEvent(View.java:8482)
+E/AndroidRuntime(12688): 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:1496)
+E/AndroidRuntime(12688): 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:1496)
+E/AndroidRuntime(12688): 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:1496)
+E/AndroidRuntime(12688): 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:1496)
+E/AndroidRuntime(12688): 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:1496)
+E/AndroidRuntime(12688): 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:1496)
+E/AndroidRuntime(12688): 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:1496)
+E/AndroidRuntime(12688): 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:1496)
+
+
+
+
